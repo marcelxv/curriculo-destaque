@@ -114,6 +114,14 @@ export default function AnalyzePage() {
     }
   };
 
+  const handleParseError = (error: Error) => {
+    console.error('PDF parsing error:', error);
+    setStep('upload');
+    setError(error.message);
+    setProgress(0);
+    setStatusMessage('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
@@ -267,7 +275,7 @@ export default function AnalyzePage() {
                 </div>
 
                 {error && (
-                  <div className="text-red-500 dark:text-red-400 text-sm text-center bg-red-50 dark:bg-red-900/20 rounded-xl p-4">
+                  <div className="p-4 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 rounded-lg">
                     {error}
                   </div>
                 )}
@@ -306,7 +314,7 @@ export default function AnalyzePage() {
                   {progress}% concluído
                 </p>
               </div>
-              {file && <PDFParserDynamic file={file} onParse={handleParse} />}
+              {file && <PDFParserDynamic file={file} onParse={handleParse} onError={handleParseError} />}
             </>
           )}
 
