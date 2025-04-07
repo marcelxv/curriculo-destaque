@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as pdfjs from 'pdfjs-dist';
 import type { TextItem, TextMarkedContent } from 'pdfjs-dist/types/src/display/api';
 
@@ -14,19 +14,42 @@ function isTextItem(item: TextItem | TextMarkedContent): item is TextItem {
 }
 
 export default function PDFParser({ file, onParse }: PDFParserProps) {
+  const workerInitialized = useRef(false);
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
-    }
+    if (typeof window === 'undefined' || workerInitialized.current) return;
+
+    const initWorker = async () => {
+      try {
+        // Check if worker is already set
+        if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+          // Fetch worker to ensure it exists
+          const response = await fetch('/pdf.worker.min.js');
+          if (!response.ok) {
+            throw new Error(`Failed to load PDF.js worker: ${response.status} ${response.statusText}`);
+          }
+          pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+        }
+        workerInitialized.current = true;
+        console.log('✅ PDF.js worker initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize PDF.js worker:', error);
+        throw new Error('Falha ao inicializar o processador de PDF. Por favor, recarregue a página e tente novamente.');
+      }
+    };
+
+    initWorker();
   }, []);
 
   useEffect(() => {
+    if (!workerInitialized.current) return;
+
     const parseFile = async () => {
       try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
         
-        console.log(`PDF loaded. Pages: ${pdf.numPages}, Fingerprint: ${pdf.fingerprints}`);
+        console.log(`📄 PDF loaded. Pages: ${pdf.numPages}, Fingerprint: ${pdf.fingerprints}`);
         
         let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {

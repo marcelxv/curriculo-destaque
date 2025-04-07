@@ -20,6 +20,20 @@ const nextConfig = {
   },
   // Disable static generation for analyze page
   output: 'standalone',
+  // Add custom headers for PDF.js worker
+  async headers() {
+    return [
+      {
+        source: '/pdf.worker.min.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig; 
