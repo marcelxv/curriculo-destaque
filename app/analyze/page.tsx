@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { INDUSTRIES, Industry } from '../constants/industries';
 import dynamic from 'next/dynamic';
-import { INDUSTRIES, Industry } from '@/app/constants/industries';
 
-const PDFParser = dynamic(() => import('@/components/PDFParser'), {
+const PDFParserDynamic = dynamic(() => import('../components/PDFParser'), {
   ssr: false,
 });
 
@@ -306,7 +306,7 @@ export default function AnalyzePage() {
                   {progress}% concluído
                 </p>
               </div>
-              {file && <PDFParser file={file} onParse={handleParse} />}
+              {file && <PDFParserDynamic file={file} onParse={handleParse} />}
             </>
           )}
 
