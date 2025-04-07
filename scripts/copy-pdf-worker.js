@@ -1,14 +1,13 @@
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import https from 'https';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Match the version in package.json (5.1.91)
-const workerUrl = 'https://unpkg.com/pdfjs-dist@5.1.91/build/pdf.worker.min.js';
-const destPath = join(__dirname, '../public/pdf.worker.min.js');
+// Updated path for pdfjs-dist v5.x ESM build
+const workerSrc = join(__dirname, '../node_modules/pdfjs-dist/build/pdf.worker.min.mjs');
+const destPath = join(__dirname, '../public/pdf.worker.min.mjs');
 
 // Create public directory if it doesn't exist
 const publicDir = join(__dirname, '../public');
@@ -16,29 +15,17 @@ if (!existsSync(publicDir)) {
   mkdirSync(publicDir, { recursive: true });
 }
 
-// Download worker file with proper error handling
-https.get(workerUrl, (response) => {
-  if (response.statusCode !== 200) {
-    console.error(`Failed to download worker file: ${response.statusCode} ${response.statusMessage}`);
+try {
+  // Ensure source file exists
+  if (!existsSync(workerSrc)) {
+    console.error(`PDF.js worker file not found at: ${workerSrc}\nPlease ensure pdfjs-dist is installed correctly.`);
     process.exit(1);
   }
 
-  let data = '';
-  
-  response.on('data', (chunk) => {
-    data += chunk;
-  });
-  
-  response.on('end', () => {
-    try {
-      writeFileSync(destPath, data);
-      console.log('✅ PDF.js worker file downloaded and saved to public folder');
-    } catch (error) {
-      console.error('Failed to write worker file:', error);
-      process.exit(1);
-    }
-  });
-}).on('error', (error) => {
-  console.error('Error downloading PDF.js worker file:', error);
+  // Copy the file
+  copyFileSync(workerSrc, destPath);
+  console.log('✅ PDF.js worker file copied to public folder');
+} catch (error) {
+  console.error('Failed to copy PDF.js worker file:', error);
   process.exit(1);
-}); 
+} 

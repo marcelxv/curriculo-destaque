@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "node --experimental-json-modules scripts/copy-pdf-worker.js && next build",
+    "dev": "node --experimental-json-modules scripts/copy-pdf-worker.js && next dev",
+    "build": "npm install && node --experimental-json-modules scripts/copy-pdf-worker.js && next build",
     "start": "next start",
     "lint": "next lint"
   },

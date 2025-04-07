@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import * as pdfjs from 'pdfjs-dist';
+import * as pdfjs from 'pdfjs-dist/build/pdf.min.mjs';
 import type { TextItem, TextMarkedContent } from 'pdfjs-dist/types/src/display/api';
 
 export interface PDFParserProps {
@@ -24,11 +24,11 @@ export default function PDFParser({ file, onParse }: PDFParserProps) {
         // Check if worker is already set
         if (!pdfjs.GlobalWorkerOptions.workerSrc) {
           // Fetch worker to ensure it exists
-          const response = await fetch('/pdf.worker.min.js');
+          const response = await fetch('/pdf.worker.min.mjs');
           if (!response.ok) {
             throw new Error(`Failed to load PDF.js worker: ${response.status} ${response.statusText}`);
           }
-          pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+          pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
         }
         workerInitialized.current = true;
         console.log('✅ PDF.js worker initialized successfully');
